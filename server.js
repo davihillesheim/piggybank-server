@@ -1,11 +1,22 @@
 const express = require('express');
 const cors = require('cors');
+const knex = require('knex');
+
+const bcrypt = require('bcryptjs');
+
+const db = knex({
+    client: 'pg',
+    connection: {
+      host : '127.0.0.1',
+      user : 'postgres',
+      password : '',
+      database : 'piggybank'
+    }
+  });
  
 const app = express();
 app.use(express.json());
 app.use(cors());
-
-const bcrypt = require('bcryptjs');
 
 const database = {
     users: [
@@ -29,31 +40,46 @@ app.get('/', (req, res)=> {
 });
 
 app.post('/signin', (req, res) => {
-    // bcrypt.compare("password", '$2a$10$1Z6cLxiVoC30/KLVDBr.KuyMVAwohE077DBcAbzZ6132QWXmlD0mS', function(err, res) {
-    //     console.log(res);
-    // });
-    if (req.body.email === database.users[0].email && req.body.password === database.users[0].password) {
-        res.json('success');
-    } else {
-        res.status('400').json('error logging in');
-    }
+    const {email, password} = req.body;
+
+    console.log(email)
+
+    db.select('email', 'password').from('users')
+        .where('email', '=', req.body.email)
+        .then(user => {
+            bcrypt.compare(password, user[0].password, (error, response) => {
+                if(response) {
+                    res.send(user[0]);
+                } else {
+                    res.send({message: 'Wrong password and/or username.'});
+                }
+            })
+        });
 });
 
 app.post('/register', (req, res) => {
     const {email, name, password } = req.body;
-    bcrypt.genSalt(10, function(err, salt) {
-        bcrypt.hash(password, salt, function(err, hash) {
-            console.log(hash)
-        });
+    
+    bcrypt.hash(password, 10, (err, hash) => {
+        if (err) {
+            console.log(err);
+        }
+
+        db('users')
+        .returning('*')
+        .insert({
+            email: email,
+            name: name,
+            password: hash
+        })
+        .then(user => {
+            res.json(user);
+        })
+        .catch(err => {
+            res.status(400).json('Unable to register');
+        })
     });
-    database.users.push({
-        id: '999',
-        name: name,
-        email: email,
-        password: password
-    })
-    res.json(database.users[database.users.length - 1]);
-})
+});
 
 app.listen(3001, () => {
     console.log('App is running on port 3001');
