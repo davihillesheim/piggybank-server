@@ -1,7 +1,9 @@
 const express = require('express');
+const cors = require('cors');
  
 const app = express();
-app.use(express.json())
+app.use(express.json());
+app.use(cors());
 
 const bcrypt = require('bcryptjs');
 
@@ -27,9 +29,9 @@ app.get('/', (req, res)=> {
 });
 
 app.post('/signin', (req, res) => {
-    bcrypt.compare("password", '$2a$10$1Z6cLxiVoC30/KLVDBr.KuyMVAwohE077DBcAbzZ6132QWXmlD0mS', function(err, res) {
-        console.log(res);
-    });
+    // bcrypt.compare("password", '$2a$10$1Z6cLxiVoC30/KLVDBr.KuyMVAwohE077DBcAbzZ6132QWXmlD0mS', function(err, res) {
+    //     console.log(res);
+    // });
     if (req.body.email === database.users[0].email && req.body.password === database.users[0].password) {
         res.json('success');
     } else {
