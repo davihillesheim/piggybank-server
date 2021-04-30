@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const knex = require('knex');
+const session = require('express-session');
 
 const bcrypt = require('bcryptjs');
 
@@ -13,42 +14,45 @@ const db = knex({
       database : 'piggybank'
     }
   });
- 
-const app = express();
-app.use(express.json());
-app.use(cors());
 
-const database = {
-    users: [
-        {
-            id: '123',
-            name: 'davi',
-            email: 'davi@gmail.com',
-            password: 'password',
-        },
-        {
-            id: '321',
-            name: 'karol',
-            email: 'karol@gmail.com',
-            password: 'password',
-        }
-    ]
+  
+  const app = express();
+  app.use(express.json());
+  app.use(cors());
+  app.use(
+      session({
+          secret: 'somerandomstuff',
+          saveUninitialized: true,
+          resave: false,
+          cookie: {
+              httpOnly: true,
+              maxAge: 3600000
+            }
+        })
+        )
+        
+const requireAuth = (req, res, next) => {
+    const { user } = req.session;
+    if(!user) {
+        return res.status(401).json({ message: 'Unauthorized'} );
+    }
+    next();
 }
 
 app.get('/', (req, res)=> {
-    res.send(database.users)
+    res.send('bla')
 });
+
 
 app.post('/signin', (req, res) => {
     const {email, password} = req.body;
 
-    console.log(email)
-
-    db.select('email', 'password').from('users')
+    db.select('id', 'email', 'password').from('users')
         .where('email', '=', req.body.email)
         .then(user => {
             bcrypt.compare(password, user[0].password, (error, response) => {
                 if(response) {
+                    req.session.user = user[0];
                     res.send(user[0]);
                 } else {
                     res.send({message: 'Wrong password and/or username.'});
