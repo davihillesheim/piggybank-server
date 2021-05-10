@@ -44,7 +44,7 @@ app.post('/signin', (req, res) => {
 
     console.log(email)
 
-    db.select('email', 'password').from('users')
+    db.select('id', 'email', 'password').from('users')
         .where('email', '=', req.body.email)
         .then(user => {
             bcrypt.compare(password, user[0].password, (error, response) => {
