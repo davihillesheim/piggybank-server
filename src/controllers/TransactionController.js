@@ -21,7 +21,7 @@ module.exports = {
       date
     }
 
-    await trx('transactions').insert(transaction);
+    await trx('expenses').insert(transaction);
 
     await trx.commit();
 
@@ -40,7 +40,7 @@ module.exports = {
       not_after
     } = request.body;
 
-    const transactionList = await knex('transactions')
+    const transactionList = await knex('expenses')
                                   .select('*')
                                   .where('user_id', user_id)
                                   .where('date', '>=', not_before)
@@ -49,7 +49,7 @@ module.exports = {
     const serializedTransactions = await Promise.all(transactionList.map(async transaction => {
 
       const category = await knex('categories')
-                                .join('transactions', 'categories.category_id', '=', transaction.category_id)
+                                .join('expenses', 'categories.category_id', '=', transaction.category_id)
                                 .select('*')
                                 .first();
 
