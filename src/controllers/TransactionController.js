@@ -12,7 +12,6 @@ module.exports = {
     } = request.body;
 
     const trx = await knex.transaction();
-
     const transaction = {
       user_id,
       category_id,
@@ -40,12 +39,14 @@ module.exports = {
       not_after
     } = request.body;
 
+    // selects all the user transactions in the time constraint
     const transactionList = await knex('expenses')
                                   .select('*')
                                   .where('user_id', user_id)
                                   .where('date', '>=', not_before)
                                   .where('date', '<', not_after);
 
+    // for each transaction, get their respective category
     const serializedTransactions = await Promise.all(transactionList.map(async transaction => {
 
       const category = await knex('categories')

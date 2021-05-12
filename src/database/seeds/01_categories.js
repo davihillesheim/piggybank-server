@@ -1,9 +1,9 @@
 
 exports.seed = function(knex) {
-  // Deletes ALL existing entries
+  // deletes all existing entries
   return knex('categories').del()
     .then(function () {
-      // Inserts seed entries
+      // inserts seed entries
       return knex('categories').insert([
         {name: 'Home', icon: 'home.svg'},
         {name: 'Food', icon: 'food.svg'},
