@@ -39,10 +39,9 @@ module.exports = {
     const {email, password} = req.body;
 
     const user = await knex.select('account_id', 'email', 'password').from('users').where('email', '=', email);
-    console.log(user)
 
     // if no user is found, return the error
-    if(!user) {
+    if(!user[0]) {
       return res.status(400).send({ error: 'User not found'});
     }
 
@@ -52,6 +51,6 @@ module.exports = {
     }
 
     // if everything checks out, return the user
-    res.send({user})
+    res.send(user[0])
   }
 }

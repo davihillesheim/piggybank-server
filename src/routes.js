@@ -1,6 +1,8 @@
 const express = require('express');
 const routes = express.Router();
+const cors = require('cors');
 routes.use(express.json());
+routes.use(cors())
 
 const CategoryController = require('./controllers/CategoryController');
 const TransactionController = require('./controllers/TransactionController');
