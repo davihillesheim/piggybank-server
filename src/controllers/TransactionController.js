@@ -20,13 +20,19 @@ module.exports = {
       date
     }
 
-    await trx('expenses').insert(transaction);
+    const id = await trx('expenses').insert(transaction).returning('expense_id');
+    const expense_id = id[0];
+
+    const category = await trx('categories').select('*').where('category_id', '=', category_id);
+    const name = category[0].name;
 
     await trx.commit();
 
     return response.json({
+      expense_id,
       user_id,
       category_id,
+      name,
       amount,
       description,
       date})
@@ -55,11 +61,12 @@ module.exports = {
                                 .first();
 
       return {
+        id: transaction.expense_id,
         amount: transaction.amount,
         description: transaction.description,
         date: transaction.date,
         name: category.name,
-        icon: category.icon
+        category_id: transaction.category_id,
       }
     }));
 
