@@ -29,13 +29,23 @@ module.exports = {
     await trx.commit();
 
     return response.json({
-      expense_id,
-      user_id,
-      category_id,
-      name,
-      amount,
-      description,
-      date})
+      id: expense_id,
+      amount: amount,
+      description: description,
+      date: date,
+      name: name,
+      category_id: category_id
+    })
+  },
+
+  async deleteTransaction(request, response) {
+    const { expense_id } = request.body;
+
+    const deletedTransaction = await knex('expenses').select('*').where('expense_id', '=', expense_id).del();
+
+    return response.json({
+      expense_id
+    })
   },
 
   async userTransactions(request, response) {
@@ -47,18 +57,18 @@ module.exports = {
 
     // selects all the user transactions in the time constraint
     const transactionList = await knex('expenses')
-                                  .select('*')
-                                  .where('user_id', user_id)
-                                  .where('date', '>=', not_before)
-                                  .where('date', '<', not_after);
+      .select('*')
+      .where('user_id', user_id)
+      .where('date', '>=', not_before)
+      .where('date', '<', not_after);
 
     // for each transaction, get their respective category
     const serializedTransactions = await Promise.all(transactionList.map(async transaction => {
 
       const category = await knex('categories')
-                                .join('expenses', 'categories.category_id', '=', transaction.category_id)
-                                .select('*')
-                                .first();
+        .join('expenses', 'categories.category_id', '=', transaction.category_id)
+        .select('*')
+        .first();
 
       return {
         id: transaction.expense_id,

@@ -18,6 +18,7 @@ routes.post('/register', UserController.signUp);
 // Transactions requests
 routes.post('/expenses', TransactionController.createTransaction);
 routes.post('/expenses/user', TransactionController.userTransactions);
+routes.post('/delete-transaction', TransactionController.deleteTransaction);
 
 
 module.exports = routes;
