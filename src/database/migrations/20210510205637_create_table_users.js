@@ -4,7 +4,6 @@ exports.up = knex => knex.schema.createTable('users', table => {
     table.string('name').notNullable();
     table.string('email').unique().notNullable();
     table.string('password').notNullable();
-    table.decimal('budget').defaultTo(0);
   });
 
 
