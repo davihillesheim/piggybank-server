@@ -7,7 +7,6 @@ module.exports = {
       user_id,
       category_id,
       amount,
-      description,
       date
     } = request.body;
 
@@ -16,7 +15,6 @@ module.exports = {
       user_id,
       category_id,
       amount,
-      description,
       date
     }
 
@@ -31,7 +29,6 @@ module.exports = {
     return response.json({
       id: expense_id,
       amount: amount,
-      description: description,
       date: date,
       name: name,
       category_id: category_id
@@ -73,7 +70,6 @@ module.exports = {
       return {
         id: transaction.expense_id,
         amount: transaction.amount,
-        description: transaction.description,
         date: transaction.date,
         name: category.name,
         category_id: transaction.category_id,
