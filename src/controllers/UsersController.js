@@ -1,21 +1,26 @@
 const knex = require('../database/connection');
 const bcrypt = require('bcryptjs');
 
+const bcryptHash = password => {
+  return new Promise((resolve, reject) => {
+    bcrypt.hash(password, 10, (err, hash) => {
+      if (err) {
+          console.log(err);
+          reject(err);
+      } else {
+        resolve(hash);
+      }
+    })
+  })
+}
+
 module.exports = {
 
   async signUp(req, res) {
     const {email, name, password } = req.body;
-    let passwordHash;
     
     // Takes the hash of the password to store in the DB
-    bcrypt.hash(password, 10, (err, hash) => {
-      if (err) {
-          console.log(err);
-      } else {
-        passwordHash = hash;
-      }
-      
-    });
+    const passwordHash = await bcryptHash(password);
 
     const trx = await knex.transaction();
 
